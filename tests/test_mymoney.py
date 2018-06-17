@@ -1,0 +1,45 @@
+from MyMoney import MyMoney
+from unittest import TestCase
+
+
+class TestMyMoney(TestCase):
+
+    def test_parse_line(self):
+        print(self.test_parse_line.__name__)
+        money = MyMoney()
+        transcation_line = [
+                                '1234',
+                                'HUF',
+                                '20180503',
+                                'Kártyatranzakció',
+                                '+CMS CLT-1819078489',
+                                '          -990,00',
+                                'Vásárlás(2018.05.01) Card:123123123  ',
+                                'GBR-g.co/helppay# GOOGLE *Google Play Ap 990,00 HUF',
+                                '0000000123123123'
+                            ]
+        result = money.parse_line(transcation_line)
+        self.assertNotEqual(result, {}, "Failure, empty result!")
+
+    def test_cant_parse_line(self):
+        print(self.test_cant_parse_line.__name__)
+        money = MyMoney()
+        transaction_line = ''
+        self.assertRaises(Exception, money.parse_line, transaction_line)
+
+    def test_empty_report_path(self):
+        print(self.test_empty_report_path.__name__)
+        money = MyMoney()
+        self.assertRaises(FileNotFoundError, money.get_transactions)
+
+    def test_get_transactions(self):
+        print(self.test_get_transactions.__name__)
+        money = MyMoney(path="~/PycharmProjects/MyMny/test_report.csv")
+        self.assertTrue(len(money.get_transactions()) > 1)
+
+    def test_get_expenses(self):
+        print(self.test_get_expenses.__name__)
+        money = MyMoney(path="~/PycharmProjects/MyMny/test_report.csv")
+        expenses = money.get_total_expenses()
+        self.assertTrue(expenses["total_expenses"] != 0)
+        self.assertTrue(expenses["total_earnings"] != 0)
